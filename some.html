@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Hiragana Trainer — Web</title>
+
+  <!-- Japanese-capable font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --bg:#0a101c;
+      --band1:#0e1624;
+      --band2:#0c1422;
+      --card:#203044;
+      --border:#6a8aac;
+      --text:#ebf0f8;
+      --muted:#bec8d6;
+      --muted2:#a5b2c4;
+      --bar:#48708c;
+      --good:#60c4a0;
+      --warn:#c48478;
+      --accent:#5aa0ff;
+      --maxw:1200px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:"Noto Sans JP","Yu Gothic","Meiryo","MS Gothic",system-ui,Segoe UI,Arial,sans-serif;
+      letter-spacing:.2px;
+    }
+    .bands{
+      background:
+        repeating-linear-gradient(180deg,var(--band1) 0 4px,var(--band2) 4px 8px);
+      min-height:100%;
+    }
+    .wrap{max-width:var(--maxw); margin:0 auto; padding:24px 20px 48px}
+    h1{margin:0 0 8px; font-size:28px; font-weight:700}
+    .sub{color:var(--muted); margin-bottom:18px}
+
+    /* Cards */
+    .grid{
+      display:grid;
+      gap:16px;
+    }
+    .menuGrid{grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))}
+    .card{
+      background:var(--card);
+      border:2px solid var(--border);
+      border-radius:16px;
+      padding:16px 18px;
+      box-shadow:0 6px 18px rgba(0,0,0,.25);
+      transition:transform .1s ease, border-color .1s ease;
+      cursor:pointer;
+    }
+    .card:where(:hover,:focus-visible){transform:translateY(-2px); border-color:#8fb3d7}
+    .card h3{margin:2px 0 6px; font-size:18px}
+    .card p{margin:0; color:var(--muted)}
+
+    /* Buttons / links */
+    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+    .btn{
+      background:#203a58; border:1px solid #4d6b88; color:var(--text);
+      padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:600;
+    }
+    .btn:hover{filter:brightness(1.05)}
+    .ghost{background:transparent}
+
+    /* Sections / views */
+    .view{display:none}
+    .view.active{display:block}
+
+    /* Timer bar */
+    .bar{
+      height:10px; width:100%; background:#2a3850; border-radius:6px; overflow:hidden;
+      border:1px solid #39506b;
+    }
+    .bar > i{display:block; height:100%; width:0%; background:var(--bar)}
+
+    /* Mode 1 grid */
+    .m1grid{
+      display:grid; gap:14px; margin-top:16px;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    @media (max-width:880px){
+      .m1grid{ grid-template-columns: repeat(3, 1fr); }
+    }
+    .tile{
+      position:relative;
+      background:var(--card); border:2px solid var(--border);
+      border-radius:14px; padding:20px 12px; min-height:110px;
+      display:grid; place-items:center;
+      transition:transform .06s ease, border-color .06s ease, background .06s ease;
+      user-select:none; cursor:pointer;
+    }
+    .tile:hover{ transform: translateY(-1px); border-color:#8fb3d7 }
+    .kana{
+      font-size:46px; line-height:1; text-align:center;
+    }
+    .romaji{
+      position:absolute; left:0; right:0; bottom:10px;
+      text-align:center; font-size:14px; color:var(--muted);
+      opacity:.0; transition:opacity .15s ease;
+    }
+    .tile.show .romaji{ opacity:1 }
+    .tile.correct-miss .romaji{ color:var(--good); opacity:1 }
+
+    .info{color:var(--muted2); margin-top:10px}
+
+    /* Overlay */
+    .overlay{
+      position:fixed; inset:0; background:rgba(0,0,0,.55);
+      display:none; align-items:center; justify-content:center; text-align:center;
+      padding:20px;
+    }
+    .overlay.active{display:flex}
+    .panel{
+      background:#1a2638; border:2px solid var(--border); border-radius:18px;
+      padding:22px 20px; max-width:520px; width:calc(100% - 28px);
+      box-shadow:0 10px 30px rgba(0,0,0,.35);
+    }
+
+    /* Chart (Mode 3) */
+    .chart h2{margin:22px 0 8px; font-size:22px}
+    .pairs{
+      display:grid; gap:12px; margin-bottom:16px;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    }
+    .pair{
+      background:#1b2a3f; border:1px solid #4b6686; border-radius:12px;
+      padding:12px 10px; display:flex; align-items:center; gap:10px;
+      min-height:48px;
+    }
+    .pair .k{font-size:28px; width:44px; text-align:center}
+    .pair .r{font-size:14px; color:var(--muted)}
+    .topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; margin:10px 0 8px}
+  </style>
+</head>
+<body>
+<div class="bands">
+  <div class="wrap">
+
+    <header class="topbar">
+      <div>
+        <h1>Hiragana Trainer — Web</h1>
+        <div class="sub">Clean, muted UI. Works with Japanese fonts via Noto Sans JP.</div>
+      </div>
+      <div class="row">
+        <button class="btn ghost" id="btnMenu">Menu</button>
+      </div>
+    </header>
+
+    <!-- MENU -->
+    <section id="view-menu" class="view active">
+      <div class="grid menuGrid">
+        <article class="card" data-go="mode1">
+          <h3>1) Arcade</h3>
+          <p>Romaji prompt → click the kana. Timer, score, streak.</p>
+        </article>
+        <article class="card" data-go="mode3">
+          <h3>3) Chart</h3>
+          <p>Base gojūon + dakuten/handakuten + yōon.</p>
+        </article>
+        <article class="card">
+          <h3>2) Sequential Review</h3>
+          <p>Coming soon here (already in your Pygame version).</p>
+        </article>
+        <article class="card">
+          <h3>4–7) Extra Modes</h3>
+          <p>Builder / Pair / YoDak / Odd One Out — scaffold ready.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- MODE 1 -->
+    <section id="view-mode1" class="view">
+      <div class="row" style="justify-content:space-between; align-items:flex-end">
+        <div>
+          <div style="color:var(--muted)">Mode 1 — Click the kana for:</div>
+          <div id="m1-romaji" style="font-size:28px; font-weight:700; margin-top:4px">ka</div>
+        </div>
+        <div style="min-width:240px; width:40%">
+          <div class="bar"><i id="m1-bar"></i></div>
+        </div>
+      </div>
+
+      <div id="m1-grid" class="m1grid" style="margin-top:18px"></div>
+
+      <div id="m1-info" class="info"></div>
+
+      <div class="row" style="margin-top:10px">
+        <button class="btn" id="m1-toggle-romaji">Toggle Romaji (H)</button>
+        <button class="btn" id="m1-restart">Restart (R)</button>
+      </div>
+    </section>
+
+    <!-- MODE 3 — CHART -->
+    <section id="view-mode3" class="view">
+      <div class="chart">
+        <h2>Hiragana Chart</h2>
+        <div class="sub">Base gojūon, Dakuten/Handakuten, and Yōon. Resize the window — layout adapts.</div>
+
+        <h2>Base Gojūon</h2>
+        <div id="chart-base" class="pairs"></div>
+
+        <h2>Dakuten &amp; Handakuten</h2>
+        <div id="chart-daku" class="pairs"></div>
+
+        <h2>Yōon (small ゃ/ゅ/ょ)</h2>
+        <div id="chart-yoon" class="pairs"></div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- Game Over overlay for Mode 1 -->
+<div id="m1-overlay" class="overlay">
+  <div class="panel">
+    <div style="font-size:22px; font-weight:700; margin-bottom:6px">Time’s up!</div>
+    <div id="m1-final" style="color:var(--muted); margin-bottom:12px"></div>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="m1-ov-restart">Restart</button>
+      <button class="btn ghost" id="m1-ov-menu">Menu</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+const HIRAGANA = [
+  ["あ","a"],["い","i"],["う","u"],["え","e"],["お","o"],
+  ["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"],
+  ["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"],
+  ["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"],
+  ["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"],
+  ["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"],
+  ["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"],
+  ["や","ya"],["ゆ","yu"],["よ","yo"],
+  ["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"],
+  ["わ","wa"],["を","wo"],["ん","n"],
+];
+const DAKUTEN = [
+  ["が","ga"],["ぎ","gi"],["ぐ","gu"],["げ","ge"],["ご","go"],
+  ["ざ","za"],["じ","ji"],["ず","zu"],["ぜ","ze"],["ぞ","zo"],
+  ["だ","da"],["ぢ","di"],["づ","du"],["で","de"],["ど","do"],
+  ["ば","ba"],["び","bi"],["ぶ","bu"],["べ","be"],["ぼ","bo"],
+  ["ぱ","pa"],["ぴ","pi"],["ぷ","pu"],["ぺ","pe"],["ぽ","po"],
+];
+const YOON = [
+  ["きゃ","kya"],["きゅ","kyu"],["きょ","kyo"],
+  ["しゃ","sha"],["しゅ","shu"],["しょ","sho"],
+  ["ちゃ","cha"],["ちゅ","chu"],["ちょ","cho"],
+  ["にゃ","nya"],["にゅ","nyu"],["にょ","nyo"],
+  ["ひゃ","hya"],["ひゅ","hyu"],["ひょ","hyo"],
+  ["みゃ","mya"],["みゅ","myu"],["みょ","myo"],
+  ["りゃ","rya"],["りゅ","ryu"],["りょ","ryo"],
+  ["ぎゃ","gya"],["ぎゅ","gyu"],["ぎょ","gyo"],
+  ["じゃ","ja"],["じゅ","ju"],["じょ","jo"],
+  ["びゃ","bya"],["びゅ","byu"],["びょ","byo"],
+  ["ぴゃ","pya"],["ぴゅ","pyu"],["ぴょ","pyo"],
+];
+
+/* ---------- Small helpers ---------- */
+const $ = sel => document.querySelector(sel);
+const $$ = sel => [...document.querySelectorAll(sel)];
+const shuffle = a => { for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]} return a; };
+function pickWeighted(n, weights){
+  const total = weights.reduce((s,v)=>s+v,0);
+  let r = Math.random()*total, s=0;
+  for(let i=0;i<n;i++){ s += weights[i]; if(r<=s) return i; }
+  return n-1;
+}
+
+/* ---------- Router ---------- */
+const views = {
+  menu: $("#view-menu"),
+  mode1: $("#view-mode1"),
+  mode3: $("#view-mode3"),
+};
+function show(which){
+  Object.values(views).forEach(v=>v.classList.remove("active"));
+  views[which].classList.add("active");
+}
+$("#btnMenu").addEventListener("click", ()=> show("menu"));
+$$(".card[data-go]").forEach(c => c.addEventListener("click", () => {
+  const go = c.getAttribute("data-go");
+  if(go==="mode1"){ Mode1.start(); show("mode1"); }
+  if(go==="mode3"){ buildChart(); show("mode3"); }
+}));
+
+/* ---------- Mode 1 (Arcade) ---------- */
+const Mode1 = (()=>{
+  const GRID_COLS = 4, GRID_ROWS = 3;
+  const ROUND_TIME = 12, MIN_ROUND = 6, STEP=5;
+  const BONUS=1, PENALTY=1, PTS=10, STREAK_BONUS=3;
+
+  const gridEl = $("#m1-grid");
+  const romajiEl = $("#m1-romaji");
+  const barEl = $("#m1-bar");
+  const infoEl = $("#m1-info");
+  const overlay = $("#m1-overlay");
+  const ovFinal = $("#m1-final");
+
+  let weights = Array(HIRAGANA.length).fill(1);
+  let score=0, streak=0, best=0, correctTotal=0;
+  let roundTime=ROUND_TIME, timeLeft=ROUND_TIME;
+  let targetIdx=0, targetKana="あ", targetRomaji="a";
+  let tiles=[], timer=null, showRomaji=false, gameOver=false;
+
+  function setBar(pct){ barEl.style.width = `${Math.max(0,Math.min(1,pct))*100}%`; }
+  function bump(idx, good){
+    weights[idx] = Math.max(0.5, good ? weights[idx]*0.94 : weights[idx]*1.22);
+  }
+  function newRound(){
+    roundTime = Math.max(MIN_ROUND, ROUND_TIME - Math.floor(correctTotal/STEP));
+    timeLeft = roundTime; setBar(1);
+    targetIdx = pickWeighted(HIRAGANA.length, weights);
+    [targetKana, targetRomaji] = HIRAGANA[targetIdx];
+    romajiEl.textContent = targetRomaji;
+
+    // Build grid options
+    const numTiles = GRID_COLS*GRID_ROWS;
+    const pool = [...Array(HIRAGANA.length).keys()].filter(i => i!==targetIdx);
+    shuffle(pool);
+    const idxs = shuffle(pool.slice(0, numTiles-1).concat([targetIdx]));
+
+    gridEl.innerHTML = "";
+    tiles = idxs.map(i=>{
+      const [k,r] = HIRAGANA[i];
+      const div = document.createElement("button");
+      div.className = "tile";
+      div.innerHTML = `<div class="kana">${k}</div><div class="romaji">${r}</div>`;
+      div.addEventListener("click", ()=> onTile(i, div));
+      gridEl.appendChild(div);
+      return {i,k,r,el:div};
+    });
+    updateInfo();
+    applyRomajiToggle();
+  }
+  function updateInfo(){
+    infoEl.textContent = `Score: ${score}   Streak: ${streak}   Best: ${best}   (H: toggle romaji, R: restart)`;
+  }
+  function onTile(i, el){
+    if(gameOver) return;
+    if(i===targetIdx){
+      bump(targetIdx,true);
+      streak++; score += PTS + Math.max(0,streak-1)*STREAK_BONUS;
+      best = Math.max(best, score);
+      timeLeft = Math.min(roundTime, timeLeft + BONUS);
+      correctTotal++;
+      newRound();
+    }else{
+      bump(targetIdx,false);
+      streak=0; timeLeft -= PENALTY;
+      el.style.transform = "translateY(1px) scale(.98)";
+      setTimeout(()=> el.style.transform="", 90);
+    }
+  }
+  function tick(){
+    if(gameOver) return;
+    timeLeft -= 0.1;
+    setBar(timeLeft/roundTime);
+    if(timeLeft<=0){
+      timeLeft=0; gameOver=true;
+      // reveal romaji and mark the missed one in green
+      tiles.forEach(t=>{
+        t.el.classList.add("show");
+        if(t.i===targetIdx) t.el.classList.add("correct-miss");
+      });
+      ovFinal.textContent = `Final Score: ${score}   Best: ${best}`;
+      overlay.classList.add("active");
+      clearInterval(timer);
+    }
+  }
+
+  function applyRomajiToggle(){
+    tiles.forEach(t => t.el.classList.toggle("show", showRomaji));
+  }
+
+  // public API
+  function start(){
+    // reset
+    score=0; streak=0; best=Math.max(best,0); gameOver=false; correctTotal=0;
+    overlay.classList.remove("active");
+    newRound();
+    clearInterval(timer); timer = setInterval(tick, 100);
+  }
+  function restart(){ start(); }
+  function stop(){ clearInterval(timer); }
+  function toggleRomaji(){
+    showRomaji = !showRomaji; applyRomajiToggle();
+  }
+
+  // controls
+  $("#m1-restart").addEventListener("click", restart);
+  $("#m1-ov-restart").addEventListener("click", restart);
+  $("#m1-ov-menu").addEventListener("click", ()=>{ stop(); overlay.classList.remove("active"); show("menu"); });
+  $("#m1-toggle-romaji").addEventListener("click", toggleRomaji);
+  document.addEventListener("keydown", (e)=>{
+    if(!views.mode1.classList.contains("active")) return;
+    if(e.key==='h' || e.key==='H') toggleRomaji();
+    if(e.key==='r' || e.key==='R') restart();
+    if(e.key==='Escape'){ stop(); overlay.classList.remove("active"); show("menu"); }
+  });
+
+  return {start, stop};
+})();
+
+/* ---------- Mode 3 (Chart) ---------- */
+function buildPairs(container, pairs){
+  container.innerHTML = "";
+  for(const [k,r] of pairs){
+    const div = document.createElement("div");
+    div.className = "pair";
+    div.innerHTML = `<div class="k">${k}</div><div class="r">${r}</div>`;
+    container.appendChild(div);
+  }
+}
+let chartBuilt=false;
+function buildChart(){
+  if(chartBuilt) return;
+  buildPairs($("#chart-base"), HIRAGANA);
+  buildPairs($("#chart-daku"), DAKUTEN);
+  buildPairs($("#chart-yoon"), YOON);
+  chartBuilt = true;
+}
+
+/* ---------- Start on menu ---------- */
+show("menu");
+</script>
+</body>
+</html>
