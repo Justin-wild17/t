@@ -1,145 +1,108 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Hiragana Trainer — Web</title>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Hiragana Trainer — 7 Modes (Web)</title>
 
-  <!-- Japanese-capable font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
+<!-- Japanese-capable font -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600;700&display=swap" rel="stylesheet">
 
-  <style>
-    :root{
-      --bg:#0a101c;
-      --band1:#0e1624;
-      --band2:#0c1422;
-      --card:#203044;
-      --border:#6a8aac;
-      --text:#ebf0f8;
-      --muted:#bec8d6;
-      --muted2:#a5b2c4;
-      --bar:#48708c;
-      --good:#60c4a0;
-      --warn:#c48478;
-      --accent:#5aa0ff;
-      --maxw:1200px;
-    }
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family:"Noto Sans JP","Yu Gothic","Meiryo","MS Gothic",system-ui,Segoe UI,Arial,sans-serif;
-      letter-spacing:.2px;
-    }
-    .bands{
-      background:
-        repeating-linear-gradient(180deg,var(--band1) 0 4px,var(--band2) 4px 8px);
-      min-height:100%;
-    }
-    .wrap{max-width:var(--maxw); margin:0 auto; padding:24px 20px 48px}
-    h1{margin:0 0 8px; font-size:28px; font-weight:700}
-    .sub{color:var(--muted); margin-bottom:18px}
+<style>
+:root{
+  --bg:#0a101c; --band1:#0e1624; --band2:#0c1422;
+  --card:#203044; --border:#6a8aac; --text:#ebf0f8;
+  --muted:#bec8d6; --muted2:#a5b2c4; --bar:#48708c;
+  --good:#60c4a0; --warn:#c48478; --accent:#5aa0ff;
+  --maxw:1240px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--bg); color:var(--text);
+  font-family:"Noto Sans JP","Yu Gothic","Meiryo","MS Gothic",system-ui,Segoe UI,Arial,sans-serif;
+  letter-spacing:.2px;
+}
+.bands{min-height:100%; background:
+  repeating-linear-gradient(180deg,var(--band1) 0 4px,var(--band2) 4px 8px);}
+.wrap{max-width:var(--maxw); margin:0 auto; padding:24px 20px 64px}
+h1{margin:0 0 8px; font-size:28px; font-weight:700}
+.sub{color:var(--muted); margin-bottom:18px}
+.topbar{display:flex; justify-content:space-between; align-items:center; gap:10px}
 
-    /* Cards */
-    .grid{
-      display:grid;
-      gap:16px;
-    }
-    .menuGrid{grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))}
-    .card{
-      background:var(--card);
-      border:2px solid var(--border);
-      border-radius:16px;
-      padding:16px 18px;
-      box-shadow:0 6px 18px rgba(0,0,0,.25);
-      transition:transform .1s ease, border-color .1s ease;
-      cursor:pointer;
-    }
-    .card:where(:hover,:focus-visible){transform:translateY(-2px); border-color:#8fb3d7}
-    .card h3{margin:2px 0 6px; font-size:18px}
-    .card p{margin:0; color:var(--muted)}
+.grid{display:grid; gap:16px}
+.menuGrid{grid-template-columns: repeat(auto-fit, minmax(280px, 1fr))}
+.card{
+  background:var(--card); border:2px solid var(--border);
+  border-radius:16px; padding:16px 18px; cursor:pointer;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);
+  transition:transform .1s ease, border-color .1s ease;
+}
+.card:hover{transform:translateY(-2px); border-color:#8fb3d7}
+.card h3{margin:2px 0 6px; font-size:18px}
+.card p{margin:0; color:var(--muted)}
 
-    /* Buttons / links */
-    .row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-    .btn{
-      background:#203a58; border:1px solid #4d6b88; color:var(--text);
-      padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:600;
-    }
-    .btn:hover{filter:brightness(1.05)}
-    .ghost{background:transparent}
+.view{display:none} .view.active{display:block}
+.row{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+.btn{
+  background:#203a58; border:1px solid #4d6b88; color:var(--text);
+  padding:8px 14px; border-radius:10px; cursor:pointer; font-weight:600;
+}
+.btn:hover{filter:brightness(1.05)}
+.ghost{background:transparent}
+.small{font-size:13px; color:var(--muted2)}
 
-    /* Sections / views */
-    .view{display:none}
-    .view.active{display:block}
+.bar{height:10px; width:100%; background:#2a3850; border-radius:6px; overflow:hidden; border:1px solid #39506b}
+.bar>i{display:block; height:100%; width:0%; background:var(--bar)}
 
-    /* Timer bar */
-    .bar{
-      height:10px; width:100%; background:#2a3850; border-radius:6px; overflow:hidden;
-      border:1px solid #39506b;
-    }
-    .bar > i{display:block; height:100%; width:0%; background:var(--bar)}
+.tile{
+  position:relative; background:var(--card); border:2px solid var(--border);
+  border-radius:14px; padding:18px 12px; min-height:110px;
+  display:grid; place-items:center; user-select:none; cursor:pointer;
+  transition:transform .06s ease, border-color .06s ease, background .06s ease;
+}
+.tile:hover{ transform: translateY(-1px); border-color:#8fb3d7 }
+.kana{font-size:46px; line-height:1; text-align:center}
+.romaji{position:absolute; left:0; right:0; bottom:10px; text-align:center; font-size:14px; color:var(--muted); opacity:0; transition:opacity .15s}
+.tile.show .romaji{opacity:1}
+.tile.correct-miss .romaji{color:var(--good); opacity:1}
 
-    /* Mode 1 grid */
-    .m1grid{
-      display:grid; gap:14px; margin-top:16px;
-      grid-template-columns: repeat(4, 1fr);
-    }
-    @media (max-width:880px){
-      .m1grid{ grid-template-columns: repeat(3, 1fr); }
-    }
-    .tile{
-      position:relative;
-      background:var(--card); border:2px solid var(--border);
-      border-radius:14px; padding:20px 12px; min-height:110px;
-      display:grid; place-items:center;
-      transition:transform .06s ease, border-color .06s ease, background .06s ease;
-      user-select:none; cursor:pointer;
-    }
-    .tile:hover{ transform: translateY(-1px); border-color:#8fb3d7 }
-    .kana{
-      font-size:46px; line-height:1; text-align:center;
-    }
-    .romaji{
-      position:absolute; left:0; right:0; bottom:10px;
-      text-align:center; font-size:14px; color:var(--muted);
-      opacity:.0; transition:opacity .15s ease;
-    }
-    .tile.show .romaji{ opacity:1 }
-    .tile.correct-miss .romaji{ color:var(--good); opacity:1 }
+.m1grid{display:grid; gap:14px; margin-top:16px; grid-template-columns:repeat(4,1fr)}
+@media (max-width:900px){ .m1grid{grid-template-columns:repeat(3,1fr)} }
 
-    .info{color:var(--muted2); margin-top:10px}
+.overlay{position:fixed; inset:0; background:rgba(0,0,0,.55); display:none; align-items:center; justify-content:center; padding:20px}
+.overlay.active{display:flex}
+.panel{background:#1a2638; border:2px solid var(--border); border-radius:18px; padding:22px 20px; max-width:560px; width:calc(100% - 28px); box-shadow:0 10px 30px rgba(0,0,0,.35)}
 
-    /* Overlay */
-    .overlay{
-      position:fixed; inset:0; background:rgba(0,0,0,.55);
-      display:none; align-items:center; justify-content:center; text-align:center;
-      padding:20px;
-    }
-    .overlay.active{display:flex}
-    .panel{
-      background:#1a2638; border:2px solid var(--border); border-radius:18px;
-      padding:22px 20px; max-width:520px; width:calc(100% - 28px);
-      box-shadow:0 10px 30px rgba(0,0,0,.35);
-    }
+.pairs{display:grid; gap:12px; margin:6px 0 18px; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr))}
+.pair{background:#1b2a3f; border:1px solid #4b6686; border-radius:12px; padding:10px 10px; display:flex; align-items:center; gap:10px; min-height:48px}
+.pair .k{font-size:28px; width:44px; text-align:center}
+.pair .r{font-size:14px; color:var(--muted)}
 
-    /* Chart (Mode 3) */
-    .chart h2{margin:22px 0 8px; font-size:22px}
-    .pairs{
-      display:grid; gap:12px; margin-bottom:16px;
-      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-    }
-    .pair{
-      background:#1b2a3f; border:1px solid #4b6686; border-radius:12px;
-      padding:12px 10px; display:flex; align-items:center; gap:10px;
-      min-height:48px;
-    }
-    .pair .k{font-size:28px; width:44px; text-align:center}
-    .pair .r{font-size:14px; color:var(--muted)}
-    .topbar{display:flex; justify-content:space-between; align-items:center; gap:10px; margin:10px 0 8px}
-  </style>
+.choices{display:grid; gap:12px; grid-template-columns:repeat(2,1fr); margin-top:14px}
+.choice{background:#1b2a3f; border:2px solid #4b6686; border-radius:12px; padding:12px; text-align:center; cursor:pointer}
+.choice:hover{border-color:#8fb3d7}
+.info{color:var(--muted2); margin-top:10px}
+
+.board{display:grid; gap:12px}
+.board.cols5{grid-template-columns:repeat(5,1fr)}
+.board.cols4{grid-template-columns:repeat(4,1fr)}
+.card-sm{min-height:80px}
+.pickline{min-height:40px; display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+.flash{animation:flash .35s}
+@keyframes flash{0%{background:#402;} 100%{background:transparent}}
+
+.memgrid{display:grid; gap:12px; grid-template-columns:repeat(4,1fr)}
+.memcard{background:#223047; border:2px solid #4b6686; border-radius:12px; padding:16px; min-height:90px; display:grid; place-items:center; cursor:pointer}
+.memcard.face{background:#1c2940}
+.memcard.matched{opacity:.4}
+.big{font-size:52px}
+.center{display:flex; justify-content:center; align-items:center}
+
+.oddgrid{display:grid; gap:16px; grid-template-columns:repeat(5,1fr)}
+@media (max-width:900px){ .oddgrid{grid-template-columns:repeat(3,1fr)} }
+</style>
 </head>
 <body>
 <div class="bands">
@@ -147,8 +110,8 @@
 
     <header class="topbar">
       <div>
-        <h1>Hiragana Trainer — Web</h1>
-        <div class="sub">Clean, muted UI. Works with Japanese fonts via Noto Sans JP.</div>
+        <h1>Hiragana Trainer — 7 Modes</h1>
+        <div class="sub">Arcade • Sequential Review • Chart • Builder • Pair Match • YoDak • Odd One Out</div>
       </div>
       <div class="row">
         <button class="btn ghost" id="btnMenu">Menu</button>
@@ -158,78 +121,145 @@
     <!-- MENU -->
     <section id="view-menu" class="view active">
       <div class="grid menuGrid">
-        <article class="card" data-go="mode1">
-          <h3>1) Arcade</h3>
-          <p>Romaji prompt → click the kana. Timer, score, streak.</p>
-        </article>
-        <article class="card" data-go="mode3">
-          <h3>3) Chart</h3>
-          <p>Base gojūon + dakuten/handakuten + yōon.</p>
-        </article>
-        <article class="card">
-          <h3>2) Sequential Review</h3>
-          <p>Coming soon here (already in your Pygame version).</p>
-        </article>
-        <article class="card">
-          <h3>4–7) Extra Modes</h3>
-          <p>Builder / Pair / YoDak / Odd One Out — scaffold ready.</p>
-        </article>
+        <article class="card" data-go="mode1"><h3>1) Arcade</h3><p>Romaji prompt → click the kana. Timer, score, streak.</p></article>
+        <article class="card" data-go="mode2"><h3>2) Sequential + Review</h3><p>Kana → choose romaji. Wrongs loop until cleared.</p></article>
+        <article class="card" data-go="mode3"><h3>3) Chart</h3><p>Base gojūon + dakuten/handakuten + yōon.</p></article>
+        <article class="card" data-go="mode4"><h3>4) Builder</h3><p>Build words or sentences by clicking kana in order.</p></article>
+        <article class="card" data-go="mode5"><h3>5) Pair Match</h3><p>Flip to match kana ⇄ romaji.</p></article>
+        <article class="card" data-go="mode6"><h3>6) YoDak Mini</h3><p>Arcade with Dakuten + Yōon pools.</p></article>
+        <article class="card" data-go="mode7"><h3>7) Odd One Out</h3><p>Four from a row + one intruder — pick the odd one.</p></article>
       </div>
     </section>
 
-    <!-- MODE 1 -->
+    <!-- MODE 1: Arcade -->
     <section id="view-mode1" class="view">
       <div class="row" style="justify-content:space-between; align-items:flex-end">
         <div>
-          <div style="color:var(--muted)">Mode 1 — Click the kana for:</div>
+          <div class="small">Mode 1 — Click the kana for:</div>
           <div id="m1-romaji" style="font-size:28px; font-weight:700; margin-top:4px">ka</div>
         </div>
-        <div style="min-width:240px; width:40%">
-          <div class="bar"><i id="m1-bar"></i></div>
-        </div>
+        <div style="min-width:240px; width:40%"><div class="bar"><i id="m1-bar"></i></div></div>
       </div>
-
-      <div id="m1-grid" class="m1grid" style="margin-top:18px"></div>
-
+      <div id="m1-grid" class="m1grid"></div>
       <div id="m1-info" class="info"></div>
-
       <div class="row" style="margin-top:10px">
         <button class="btn" id="m1-toggle-romaji">Toggle Romaji (H)</button>
         <button class="btn" id="m1-restart">Restart (R)</button>
       </div>
     </section>
 
-    <!-- MODE 3 — CHART -->
-    <section id="view-mode3" class="view">
-      <div class="chart">
-        <h2>Hiragana Chart</h2>
-        <div class="sub">Base gojūon, Dakuten/Handakuten, and Yōon. Resize the window — layout adapts.</div>
-
-        <h2>Base Gojūon</h2>
-        <div id="chart-base" class="pairs"></div>
-
-        <h2>Dakuten &amp; Handakuten</h2>
-        <div id="chart-daku" class="pairs"></div>
-
-        <h2>Yōon (small ゃ/ゅ/ょ)</h2>
-        <div id="chart-yoon" class="pairs"></div>
+    <!-- MODE 2: Sequential + Review -->
+    <section id="view-mode2" class="view">
+      <div class="row" style="justify-content:space-between; align-items:flex-end">
+        <div>
+          <div class="small" id="m2-label">Mode 2 — Sequential Pass</div>
+          <div id="m2-kana" style="font-size:60px; margin-top:4px">あ</div>
+        </div>
+        <div class="small" id="m2-progress">1 / 46</div>
       </div>
+      <div id="m2-choices" class="choices"></div>
+      <div class="info" id="m2-info">Click the correct romaji. R: restart. ESC: menu.</div>
+    </section>
+
+    <!-- MODE 3: Chart -->
+    <section id="view-mode3" class="view">
+      <h2>Hiragana Chart</h2>
+      <div class="sub">Base gojūon, Dakuten/Handakuten, and Yōon. Layout adapts to your screen.</div>
+      <h3>Base Gojūon</h3>
+      <div id="chart-base" class="pairs"></div>
+      <h3>Dakuten &amp; Handakuten</h3>
+      <div id="chart-daku" class="pairs"></div>
+      <h3>Yōon (small ゃ/ゅ/ょ)</h3>
+      <div id="chart-yoon" class="pairs"></div>
+    </section>
+
+    <!-- MODE 4: Builder -->
+    <section id="view-mode4" class="view">
+      <div id="m4-menu">
+        <h2>Mode 4 — Builder</h2>
+        <div class="grid menuGrid">
+          <article class="card" id="m4-word"><h3>Word Builder (10 tiles)</h3><p>Build words by clicking KANA in order.</p></article>
+          <article class="card" id="m4-sent"><h3>Sentence Builder (25 tiles)</h3><p>Build short sentences by clicking KANA in order.</p></article>
+        </div>
+      </div>
+
+      <div id="m4-word-view" style="display:none">
+        <div class="small">Word Builder — <span id="wb-count">1/30</span></div>
+        <div id="wb-prompt" style="font-size:20px; margin:6px 0 6px">Build: neko (cat)</div>
+        <div class="pickline"><span class="small">Your picks:</span> <span id="wb-picks" style="font-size:26px"></span></div>
+        <div id="wb-board" class="board cols5" style="margin-top:12px"></div>
+        <div class="row" style="margin-top:10px"><button class="btn" id="wb-restart">Restart</button><button class="btn ghost" id="wb-back">Back</button></div>
+      </div>
+
+      <div id="m4-sent-view" style="display:none">
+        <div class="small">Sentence Builder — <span id="sb-count">1/4</span></div>
+        <div id="sb-prompt" style="font-size:20px; margin:6px 0 6px">Build: sora wa aoi (The sky is blue)</div>
+        <div class="pickline"><span class="small">Your picks:</span> <span id="sb-picks" style="font-size:24px"></span></div>
+        <div id="sb-board" class="board cols5" style="margin-top:12px"></div>
+        <div class="row" style="margin-top:10px"><button class="btn" id="sb-restart">Restart</button><button class="btn ghost" id="sb-back">Back</button></div>
+      </div>
+    </section>
+
+    <!-- MODE 5: Pair Match -->
+    <section id="view-mode5" class="view">
+      <div class="row" style="justify-content:space-between">
+        <div class="small">Mode 5 — Pair Match (kana ⇄ romaji)</div>
+        <div class="small">Moves: <span id="m5-moves">0</span></div>
+      </div>
+      <div id="m5-grid" class="memgrid" style="margin-top:12px"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="m5-restart">Restart</button></div>
+    </section>
+
+    <!-- MODE 6: YoDak Mini -->
+    <section id="view-mode6" class="view">
+      <div class="row" style="justify-content:space-between; align-items:flex-end">
+        <div>
+          <div class="small">Mode 6 — YoDak Mini (Dakuten + Yōon)</div>
+          <div id="m6-romaji" style="font-size:28px; font-weight:700; margin-top:4px">kya</div>
+        </div>
+        <div style="min-width:240px; width:40%"><div class="bar"><i id="m6-bar"></i></div></div>
+      </div>
+      <div id="m6-grid" class="m1grid"></div>
+      <div id="m6-info" class="info"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="m6-restart">Restart (R)</button></div>
+    </section>
+
+    <!-- MODE 7: Odd One Out -->
+    <section id="view-mode7" class="view">
+      <div class="small">Mode 7 — Odd One Out</div>
+      <div id="m7-q" style="font-size:20px; margin-top:6px">Which kana does NOT belong to the ka-line?</div>
+      <div id="m7-grid" class="oddgrid" style="margin-top:12px"></div>
+      <div id="m7-msg" class="info" style="min-height:20px"></div>
+      <div class="row" style="margin-top:10px"><button class="btn" id="m7-next">New Round</button></div>
     </section>
 
   </div>
 </div>
 
-<!-- Game Over overlay for Mode 1 -->
-<div id="m1-overlay" class="overlay">
-  <div class="panel">
+<!-- Overlays -->
+<div id="m1-overlay" class="overlay"><div class="panel center">
+  <div>
     <div style="font-size:22px; font-weight:700; margin-bottom:6px">Time’s up!</div>
-    <div id="m1-final" style="color:var(--muted); margin-bottom:12px"></div>
-    <div class="row" style="justify-content:center">
-      <button class="btn" id="m1-ov-restart">Restart</button>
-      <button class="btn ghost" id="m1-ov-menu">Menu</button>
-    </div>
+    <div id="m1-final" class="small" style="margin-bottom:12px"></div>
+    <div class="row center"><button class="btn" id="m1-ov-restart">Restart</button><button class="btn ghost" id="m1-ov-menu">Menu</button></div>
   </div>
-</div>
+</div></div>
+
+<div id="m6-overlay" class="overlay"><div class="panel center">
+  <div>
+    <div style="font-size:22px; font-weight:700; margin-bottom:6px">Time’s up!</div>
+    <div id="m6-final" class="small" style="margin-bottom:12px"></div>
+    <div class="row center"><button class="btn" id="m6-ov-restart">Restart</button><button class="btn ghost" id="m6-ov-menu">Menu</button></div>
+  </div>
+</div></div>
+
+<div id="m5-overlay" class="overlay"><div class="panel center">
+  <div>
+    <div style="font-size:22px; font-weight:700; margin-bottom:6px">Cleared!</div>
+    <div id="m5-final" class="small" style="margin-bottom:12px"></div>
+    <div class="row center"><button class="btn" id="m5-ov-restart">Restart</button><button class="btn ghost" id="m5-ov-menu">Menu</button></div>
+  </div>
+</div></div>
 
 <script>
 /* ---------- Data ---------- */
@@ -262,177 +292,342 @@ const YOON = [
   ["りゃ","rya"],["りゅ","ryu"],["りょ","ryo"],
   ["ぎゃ","gya"],["ぎゅ","gyu"],["ぎょ","gyo"],
   ["じゃ","ja"],["じゅ","ju"],["じょ","jo"],
-  ["びゃ","bya"],["びゅ","byu"],["びょ","byo"],
+  ["びゃ","bya"],["びゅ","byo"],["びょ","byo"], // keep jo/byo consistent
   ["ぴゃ","pya"],["ぴゅ","pyu"],["ぴょ","pyo"],
 ];
+// fix small inconsistency
+YOON[26] = ["びゅ","byu"];
 
-/* ---------- Small helpers ---------- */
-const $ = sel => document.querySelector(sel);
-const $$ = sel => [...document.querySelectorAll(sel)];
-const shuffle = a => { for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]} return a; };
-function pickWeighted(n, weights){
-  const total = weights.reduce((s,v)=>s+v,0);
-  let r = Math.random()*total, s=0;
-  for(let i=0;i<n;i++){ s += weights[i]; if(r<=s) return i; }
-  return n-1;
-}
+const ALL = [...HIRAGANA, ...DAKUTEN, ...YOON];
+const ROMAJI_TO_KANA = Object.fromEntries(ALL.map(([k,r])=>[r,k]));
 
-/* ---------- Router ---------- */
-const views = {
-  menu: $("#view-menu"),
-  mode1: $("#view-mode1"),
-  mode3: $("#view-mode3"),
-};
-function show(which){
-  Object.values(views).forEach(v=>v.classList.remove("active"));
-  views[which].classList.add("active");
-}
-$("#btnMenu").addEventListener("click", ()=> show("menu"));
-$$(".card[data-go]").forEach(c => c.addEventListener("click", () => {
-  const go = c.getAttribute("data-go");
-  if(go==="mode1"){ Mode1.start(); show("mode1"); }
-  if(go==="mode3"){ buildChart(); show("mode3"); }
-}));
+/* ---------- Helpers ---------- */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const shuffle = a => { for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]} return a; };
+function show(id){ $$(".view").forEach(v=>v.classList.remove("active")); $(`#view-${id}`).classList.add("active"); }
+$("#btnMenu").onclick = ()=> show("menu");
+
+/* ---------- Router from menu ---------- */
+$$(".card[data-go]").forEach(el=>{
+  el.onclick = ()=>{
+    const go = el.getAttribute("data-go");
+    const map = {mode1:Mode1.start, mode2:Mode2.start, mode3:Chart.build, mode4:Builder.menu,
+                 mode5:Pair.start, mode6:YoDak.start, mode7:Odd.start};
+    (map[go]||(()=>{}))(); show(go);
+  };
+});
 
 /* ---------- Mode 1 (Arcade) ---------- */
 const Mode1 = (()=>{
-  const GRID_COLS = 4, GRID_ROWS = 3;
-  const ROUND_TIME = 12, MIN_ROUND = 6, STEP=5;
+  const GRID_COLS=4, GRID_ROWS=3, ROUND_TIME=12, MIN_ROUND=6, STEP=5;
   const BONUS=1, PENALTY=1, PTS=10, STREAK_BONUS=3;
+  const gridEl=$("#m1-grid"), romajiEl=$("#m1-romaji"), bar=$("#m1-bar"), info=$("#m1-info");
+  const overlay=$("#m1-overlay"), final=$("#m1-final");
+  let weights=new Array(HIRAGANA.length).fill(1), score=0, streak=0, best=0, correctTotal=0;
+  let roundTime=ROUND_TIME, timeLeft=ROUND_TIME, targetIdx=0, tiles=[], showRomaji=false, timer=null, over=false;
 
-  const gridEl = $("#m1-grid");
-  const romajiEl = $("#m1-romaji");
-  const barEl = $("#m1-bar");
-  const infoEl = $("#m1-info");
-  const overlay = $("#m1-overlay");
-  const ovFinal = $("#m1-final");
-
-  let weights = Array(HIRAGANA.length).fill(1);
-  let score=0, streak=0, best=0, correctTotal=0;
-  let roundTime=ROUND_TIME, timeLeft=ROUND_TIME;
-  let targetIdx=0, targetKana="あ", targetRomaji="a";
-  let tiles=[], timer=null, showRomaji=false, gameOver=false;
-
-  function setBar(pct){ barEl.style.width = `${Math.max(0,Math.min(1,pct))*100}%`; }
-  function bump(idx, good){
-    weights[idx] = Math.max(0.5, good ? weights[idx]*0.94 : weights[idx]*1.22);
-  }
+  function setBar(p){ bar.style.width = `${Math.max(0,Math.min(1,p))*100}%`; }
+  function bump(i,g){ weights[i]=Math.max(0.5, g?weights[i]*0.94:weights[i]*1.22); }
   function newRound(){
     roundTime = Math.max(MIN_ROUND, ROUND_TIME - Math.floor(correctTotal/STEP));
     timeLeft = roundTime; setBar(1);
     targetIdx = pickWeighted(HIRAGANA.length, weights);
-    [targetKana, targetRomaji] = HIRAGANA[targetIdx];
+    const [targetKana, targetRomaji] = HIRAGANA[targetIdx];
     romajiEl.textContent = targetRomaji;
 
-    // Build grid options
-    const numTiles = GRID_COLS*GRID_ROWS;
-    const pool = [...Array(HIRAGANA.length).keys()].filter(i => i!==targetIdx);
-    shuffle(pool);
-    const idxs = shuffle(pool.slice(0, numTiles-1).concat([targetIdx]));
-
-    gridEl.innerHTML = "";
-    tiles = idxs.map(i=>{
+    const n=GRID_COLS*GRID_ROWS;
+    const pool=[...Array(HIRAGANA.length).keys()].filter(i=>i!==targetIdx); shuffle(pool);
+    const idxs = shuffle(pool.slice(0,n-1).concat([targetIdx]));
+    gridEl.innerHTML=""; tiles=[];
+    for(const i of idxs){
       const [k,r] = HIRAGANA[i];
-      const div = document.createElement("button");
-      div.className = "tile";
-      div.innerHTML = `<div class="kana">${k}</div><div class="romaji">${r}</div>`;
-      div.addEventListener("click", ()=> onTile(i, div));
-      gridEl.appendChild(div);
-      return {i,k,r,el:div};
-    });
-    updateInfo();
-    applyRomajiToggle();
-  }
-  function updateInfo(){
-    infoEl.textContent = `Score: ${score}   Streak: ${streak}   Best: ${best}   (H: toggle romaji, R: restart)`;
-  }
-  function onTile(i, el){
-    if(gameOver) return;
-    if(i===targetIdx){
-      bump(targetIdx,true);
-      streak++; score += PTS + Math.max(0,streak-1)*STREAK_BONUS;
-      best = Math.max(best, score);
-      timeLeft = Math.min(roundTime, timeLeft + BONUS);
-      correctTotal++;
-      newRound();
-    }else{
-      bump(targetIdx,false);
-      streak=0; timeLeft -= PENALTY;
-      el.style.transform = "translateY(1px) scale(.98)";
-      setTimeout(()=> el.style.transform="", 90);
+      const bt = document.createElement("button");
+      bt.className="tile"; bt.innerHTML=`<div class="kana">${k}</div><div class="romaji">${r}</div>`;
+      bt.onclick=()=>onTile(i,bt);
+      gridEl.appendChild(bt);
+      tiles.push({i,k,r,el:bt});
+    }
+    applyShow(); info.textContent=`Score: ${score}   Streak: ${streak}   Best: ${best}   (H: toggle romaji, R: restart)`;
+    function onTile(i,el){
+      if(over) return;
+      if(i===targetIdx){
+        bump(i,true); streak++; score+=PTS + Math.max(0,streak-1)*STREAK_BONUS; best=Math.max(best,score);
+        timeLeft=Math.min(roundTime,timeLeft+BONUS); correctTotal++; newRound();
+      }else{ bump(targetIdx,false); streak=0; timeLeft-=PENALTY; el.style.transform="translateY(1px) scale(.98)"; setTimeout(()=>el.style.transform="",90); }
     }
   }
-  function tick(){
-    if(gameOver) return;
-    timeLeft -= 0.1;
-    setBar(timeLeft/roundTime);
-    if(timeLeft<=0){
-      timeLeft=0; gameOver=true;
-      // reveal romaji and mark the missed one in green
-      tiles.forEach(t=>{
-        t.el.classList.add("show");
-        if(t.i===targetIdx) t.el.classList.add("correct-miss");
-      });
-      ovFinal.textContent = `Final Score: ${score}   Best: ${best}`;
-      overlay.classList.add("active");
-      clearInterval(timer);
-    }
-  }
-
-  function applyRomajiToggle(){
-    tiles.forEach(t => t.el.classList.toggle("show", showRomaji));
-  }
-
-  // public API
-  function start(){
-    // reset
-    score=0; streak=0; best=Math.max(best,0); gameOver=false; correctTotal=0;
-    overlay.classList.remove("active");
-    newRound();
-    clearInterval(timer); timer = setInterval(tick, 100);
-  }
-  function restart(){ start(); }
-  function stop(){ clearInterval(timer); }
-  function toggleRomaji(){
-    showRomaji = !showRomaji; applyRomajiToggle();
-  }
-
-  // controls
-  $("#m1-restart").addEventListener("click", restart);
-  $("#m1-ov-restart").addEventListener("click", restart);
-  $("#m1-ov-menu").addEventListener("click", ()=>{ stop(); overlay.classList.remove("active"); show("menu"); });
-  $("#m1-toggle-romaji").addEventListener("click", toggleRomaji);
-  document.addEventListener("keydown", (e)=>{
-    if(!views.mode1.classList.contains("active")) return;
-    if(e.key==='h' || e.key==='H') toggleRomaji();
-    if(e.key==='r' || e.key==='R') restart();
-    if(e.key==='Escape'){ stop(); overlay.classList.remove("active"); show("menu"); }
+  function tick(){ if(over) return; timeLeft-=0.1; setBar(timeLeft/roundTime); if(timeLeft<=0){ timeLeft=0; over=true;
+    tiles.forEach(t=>{ t.el.classList.add("show"); if(t.i===targetIdx) t.el.classList.add("correct-miss"); });
+    final.textContent=`Final Score: ${score}   Best: ${best}`; overlay.classList.add("active"); clearInterval(timer); } }
+  function applyShow(){ tiles.forEach(t=> t.el.classList.toggle("show", showRomaji)); }
+  function start(){ score=streak=correctTotal=0; over=false; overlay.classList.remove("active"); newRound(); clearInterval(timer); timer=setInterval(tick,100); }
+  $("#m1-restart").onclick = start;
+  $("#m1-ov-restart").onclick = start;
+  $("#m1-ov-menu").onclick = ()=>{ clearInterval(timer); overlay.classList.remove("active"); show("menu"); };
+  $("#m1-toggle-romaji").onclick = ()=>{ showRomaji=!showRomaji; applyShow(); };
+  document.addEventListener("keydown",e=>{
+    if(!$("#view-mode1").classList.contains("active")) return;
+    if(e.key==='h'||e.key==='H'){$("#m1-toggle-romaji").click();}
+    if(e.key==='r'||e.key==='R'){$("#m1-restart").click();}
+    if(e.key==='Escape'){ clearInterval(timer); overlay.classList.remove("active"); show("menu"); }
   });
+  return {start};
+})();
 
-  return {start, stop};
+/* ---------- Mode 2 (Sequential + Review) ---------- */
+const Mode2 = (()=>{
+  const label=$("#m2-label"), kanaEl=$("#m2-kana"), prog=$("#m2-progress"), choices=$("#m2-choices");
+  const MODE2_POOL = [...Array(HIRAGANA.length).keys()];
+  const OPTS=4;
+  let phase="pass", idx=0, right=[], wrong=[], reviewPool=[], reviewIdx=0, reviewWrong=[], current=0;
+
+  function buildQ(pool,i){
+    current = pool[i];
+    const [k,r] = HIRAGANA[current];
+    kanaEl.textContent = k;
+    const romajiAll = HIRAGANA.map(x=>x[1]);
+    const ds = shuffle(romajiAll.filter(x=>x!==r)).slice(0,OPTS-1);
+    const opts = shuffle([[true,r], ...ds.map(x=>[false,x])]);
+    choices.innerHTML="";
+    for(const [ok,lab] of opts){
+      const div = document.createElement("button"); div.className="choice"; div.textContent = lab;
+      div.onclick = ()=>{
+        if(phase==="pass"){ if(ok){ if(!right.includes(current)) right.push(current); } else { if(!wrong.includes(current)) wrong.push(current); }
+          if(idx+1<MODE2_POOL.length){ idx++; buildQ(MODE2_POOL, idx); updateProg(); }
+          else{
+            if(wrong.length===0){ label.textContent="Mode 2 — Results (All cleared 🎉)"; choices.innerHTML=""; kanaEl.textContent=""; prog.textContent=""; }
+            else { phase="review"; startReview(); }
+          }
+        } else if(phase==="review"){
+          if(ok){ if(!reviewWrong.includes(current)){} /* fine */ } else { if(!reviewWrong.includes(current)) reviewWrong.push(current); }
+          if(reviewIdx+1<reviewPool.length){ reviewIdx++; buildQ(reviewPool, reviewIdx); updateProg(); }
+          else{
+            if(reviewWrong.length===0){ label.textContent="Mode 2 — Results (Wrongs cleared 🎉)"; choices.innerHTML=""; kanaEl.textContent=""; prog.textContent=""; }
+            else{ reviewPool = reviewWrong.slice(); reviewWrong=[]; reviewIdx=0; buildQ(reviewPool, reviewIdx); updateProg(); }
+          }
+        }
+      };
+      choices.appendChild(div);
+    }
+  }
+  function updateProg(){
+    if(phase==="pass"){ prog.textContent = `${idx+1} / ${MODE2_POOL.length}`; label.textContent="Mode 2 — Sequential Pass"; }
+    else{ prog.textContent = `${reviewIdx+1} / ${reviewPool.length}`; label.textContent="Mode 2 — Review Wrongs"; }
+  }
+  function start(){ phase="pass"; idx=0; right=[]; wrong=[]; reviewPool=[]; reviewIdx=0; reviewWrong=[]; buildQ(MODE2_POOL,0); updateProg(); }
+  document.addEventListener("keydown",e=>{
+    if(!$("#view-mode2").classList.contains("active")) return;
+    if(e.key==='r'||e.key==='R') start();
+    if(e.key==='Escape') show("menu");
+  });
+  return {start};
 })();
 
 /* ---------- Mode 3 (Chart) ---------- */
-function buildPairs(container, pairs){
-  container.innerHTML = "";
-  for(const [k,r] of pairs){
-    const div = document.createElement("div");
-    div.className = "pair";
-    div.innerHTML = `<div class="k">${k}</div><div class="r">${r}</div>`;
-    container.appendChild(div);
+const Chart = (()=>{
+  function buildPairs(el, pairs){
+    el.innerHTML=""; for(const [k,r] of pairs){ const d=document.createElement("div"); d.className="pair"; d.innerHTML=`<div class="k">${k}</div><div class="r">${r}</div>`; el.appendChild(d); }
   }
-}
-let chartBuilt=false;
-function buildChart(){
-  if(chartBuilt) return;
-  buildPairs($("#chart-base"), HIRAGANA);
-  buildPairs($("#chart-daku"), DAKUTEN);
-  buildPairs($("#chart-yoon"), YOON);
-  chartBuilt = true;
-}
+  function build(){ buildPairs($("#chart-base"), HIRAGANA); buildPairs($("#chart-daku"), DAKUTEN); buildPairs($("#chart-yoon"), YOON); }
+  return {build};
+})();
 
-/* ---------- Start on menu ---------- */
-show("menu");
+/* ---------- Mode 4 (Builder) ---------- */
+const Builder = (()=>{
+  // Word list (30)
+  const WORDS = [
+    ["what","nani"],["cat","neko"],["dog","inu"],["umbrella","kasa"],["sky","sora"],
+    ["mountain","yama"],["sea","umi"],["sushi","sushi"],["ear","mimi"],["dream","yume"],
+    ["flower","hana"],["feather","hane"],["forest","mori"],["tree","ki"],["cloud","kumo"],
+    ["river","kawa"],["house","ie"],["morning","asa"],["night","yoru"],["free time","hima"],
+    ["bird","tori"],["red","aka"],["blue","ao"],["white","shiro"],["black","kuro"],
+    ["foot/leg","ashi"],["hand","te"],["eye","me"],["mouth","kuchi"],["snow","yuki"],
+  ];
+  const SENTENCES = [
+    ["The sky is blue","sora wa aoi"],
+    ["The sea is blue","umi wa aoi"],
+    ["The mountain is tall","yama wa takai"],
+    ["I like sushi","watashi sushi suki"],
+  ];
+  const WORD_POOL=10, SENT_POOL=25;
+
+  const menu = $("#m4-menu");
+  const WV = $("#m4-word-view"), SV = $("#m4-sent-view");
+  const wbCount=$("#wb-count"), wbPrompt=$("#wb-prompt"), wbPicks=$("#wb-picks"), wbBoard=$("#wb-board");
+  const sbCount=$("#sb-count"), sbPrompt=$("#sb-prompt"), sbPicks=$("#sb-picks"), sbBoard=$("#sb-board");
+
+  function splitRomaji(s){ const s2=s.replaceAll(" ",""); const keys=Object.keys(ROMAJI_TO_KANA).sort((a,b)=>b.length-a.length); let i=0, out=[]; while(i<s2.length){ let m=null; for(const k of keys){ if(s2.startsWith(k,i)){ m=k; break; } } if(!m){ m=s2[i]; } out.push(m); i+=m.length; } return out; }
+  const unitsToKana = u => u.map(x=>ROMAJI_TO_KANA[x]||x);
+  function buildPool(targetKanaUnits, N){
+    const pool=[...new Set(targetKanaUnits)];
+    const others = ALL.map(x=>x[0]).filter(k=>!pool.includes(k)); shuffle(others);
+    for(const k of others){ if(pool.length>=N) break; pool.push(k); }
+    while(pool.length<N) pool.push(ALL[Math.floor(Math.random()*ALL.length)][0]);
+    return shuffle(pool);
+  }
+
+  // Word Builder state
+  let wIdx=0, wItems=[], wTargetUnits=[], wTargetKanaUnits=[], wPool=[], wBuilt=[];
+  function startWord(){
+    menu.style.display="none"; SV.style.display="none"; WV.style.display="";
+    wItems = shuffle(WORDS.slice()); wIdx=0; buildWordQ();
+  }
+  function buildWordQ(){
+    if(wIdx>=wItems.length){ menu.style.display=""; WV.style.display="none"; return; }
+    const [en, romaji] = wItems[wIdx];
+    wTargetUnits = splitRomaji(romaji); wTargetKanaUnits = unitsToKana(wTargetUnits);
+    wPool = buildPool(wTargetKanaUnits, WORD_POOL); wBuilt=[];
+    wbCount.textContent = `${wIdx+1}/${wItems.length}`;
+    wbPrompt.textContent = `Build: ${romaji} (${en})`; wbPicks.textContent = "";
+    wbBoard.innerHTML=""; for(const k of wPool){ const b=document.createElement("button"); b.className="tile card-sm"; b.innerHTML=`<div class="kana">${k}</div>`; b.onclick=()=>pickWord(k,b); wbBoard.appendChild(b); }
+  }
+  function pickWord(k, btn){
+    const expected = wTargetKanaUnits[wBuilt.length];
+    if(expected && k===expected){ wBuilt.push(k); wbPicks.textContent = wBuilt.join(""); if(wBuilt.length===wTargetKanaUnits.length){ wIdx++; buildWordQ(); } }
+    else{ btn.classList.add("flash"); setTimeout(()=>btn.classList.remove("flash"),220); }
+  }
+
+  // Sentence Builder state
+  let sIdx=0, sItems=[], sTargetUnits=[], sTargetKanaUnits=[], sPool=[], sBuilt=[];
+  function startSent(){
+    menu.style.display="none"; WV.style.display="none"; SV.style.display="";
+    sItems = shuffle(SENTENCES.slice()); sIdx=0; buildSentQ();
+  }
+  function buildSentQ(){
+    if(sIdx>=sItems.length){ menu.style.display=""; SV.style.display="none"; return; }
+    const [en, romaji] = sItems[sIdx];
+    sTargetUnits = splitRomaji(romaji); sTargetKanaUnits = unitsToKana(sTargetUnits);
+    sPool = buildPool(sTargetKanaUnits, SENT_POOL); sBuilt=[];
+    sbCount.textContent = `${sIdx+1}/${sItems.length}`;
+    sbPrompt.textContent = `Build: ${romaji} (${en})`; sbPicks.textContent = "";
+    sbBoard.innerHTML=""; for(const k of sPool){ const b=document.createElement("button"); b.className="tile card-sm"; b.innerHTML=`<div class="kana">${k}</div>`; b.onclick=()=>pickSent(k,b); sbBoard.appendChild(b); }
+  }
+  function pickSent(k, btn){
+    const expected = sTargetKanaUnits[sBuilt.length];
+    if(expected && k===expected){ sBuilt.push(k); sbPicks.textContent = sBuilt.join(""); if(sBuilt.length===sTargetKanaUnits.length){ sIdx++; buildSentQ(); } }
+    else{ btn.classList.add("flash"); setTimeout(()=>btn.classList.remove("flash"),220); }
+  }
+
+  // Wiring
+  $("#m4-word").onclick = startWord; $("#m4-sent").onclick = startSent;
+  $("#wb-back").onclick = ()=>{ menu.style.display=""; WV.style.display="none"; };
+  $("#sb-back").onclick = ()=>{ menu.style.display=""; SV.style.display="none"; };
+  $("#wb-restart").onclick = startWord; $("#sb-restart").onclick = startSent;
+
+  function menuView(){ show("mode4"); menu.style.display=""; WV.style.display="none"; SV.style.display="none"; }
+  return {menu:menuView};
+})();
+
+/* ---------- Mode 5 (Pair Match) ---------- */
+const Pair = (()=>{
+  const grid=$("#m5-grid"), movesEl=$("#m5-moves"), overlay=$("#m5-overlay"), final=$("#m5-final");
+  let cards=[], first=null, second=null, moves=0, lock=false;
+
+  function start(){
+    moves=0; movesEl.textContent=moves; overlay.classList.remove("active");
+    const pool = shuffle([...ALL]); const chosen = pool.slice(0,8);
+    const deck=[]; let pid=0;
+    for(const [k,r] of chosen){ deck.push({pid, isKana:true, label:k}); deck.push({pid, isKana:false, label:r}); pid++; }
+    shuffle(deck);
+    grid.innerHTML=""; cards=[];
+    for(const c of deck){
+      const d=document.createElement("button"); d.className="memcard"; d.innerHTML=`<div class="${c.isKana?'big':''}">${c.isKana?c.label:c.label}</div>`;
+      c.el=d; c.face=false; c.matched=false;
+      d.onclick=()=>flip(c);
+      grid.appendChild(d); cards.push(c);
+    }
+  }
+  function flip(c){
+    if(lock || c.matched || c.face) return;
+    c.face=true; c.el.classList.add("face"); c.el.innerHTML=`<div class="${c.isKana?'big':''}">${c.label}</div>`;
+    if(!first){ first=c; return; }
+    if(!second){ second=c; moves++; movesEl.textContent=moves; lock=true;
+      setTimeout(()=>{
+        if(first.pid===second.pid && first.isKana!==second.isKana){
+          first.matched=second.matched=true; first.el.classList.add("matched"); second.el.classList.add("matched");
+        }else{
+          first.face=second.face=false; first.el.classList.remove("face"); second.el.classList.remove("face");
+          first.el.innerHTML=""; second.el.innerHTML="";
+        }
+        first=second=null; lock=false;
+        if(cards.every(x=>x.matched)){ final.textContent=`Solved in ${moves} moves.`; overlay.classList.add("active"); }
+      }, 650);
+    }
+  }
+  $("#m5-restart").onclick=start;
+  $("#m5-ov-restart").onclick=start;
+  $("#m5-ov-menu").onclick=()=>{ overlay.classList.remove("active"); show("menu"); };
+  return {start};
+})();
+
+/* ---------- Mode 6 (YoDak Mini) ---------- */
+const YoDak = (()=>{
+  const pool = [...DAKUTEN, ...YOON];
+  const GRID_COLS=3, GRID_ROWS=3, ROUND_TIME=14, BONUS=1, PENALTY=1, PTS=10, STREAK_BONUS=3;
+  const grid=$("#m6-grid"), romaji=$("#m6-romaji"), bar=$("#m6-bar"), info=$("#m6-info"), overlay=$("#m6-overlay"), final=$("#m6-final");
+  let weights=new Array(pool.length).fill(1), targetIdx=0, tiles=[], timer=null, timeLeft=ROUND_TIME, roundTime=ROUND_TIME, score=0, streak=0, best=0, over=false;
+
+  function setBar(p){ bar.style.width=`${Math.max(0,Math.min(1,p))*100}%`; }
+  function bump(i,g){ weights[i]=Math.max(0.5, g?weights[i]*0.94:weights[i]*1.22); }
+  function newRound(){
+    timeLeft=roundTime; setBar(1);
+    targetIdx = pickWeighted(pool.length, weights);
+    const [k,r] = pool[targetIdx]; romaji.textContent=r;
+    const n=GRID_COLS*GRID_ROWS;
+    const idxs = shuffle([...Array(pool.length).keys()].filter(i=>i!==targetIdx)).slice(0,n-1).concat([targetIdx]); shuffle(idxs);
+    grid.innerHTML=""; tiles=[];
+    for(const i of idxs){ const [kk,rr]=pool[i]; const bt=document.createElement("button"); bt.className="tile"; bt.innerHTML=`<div class="kana">${kk}</div><div class="romaji">${rr}</div>`; bt.onclick=()=>click(i); grid.appendChild(bt); tiles.push({i,el:bt}); }
+    info.textContent = `Score: ${score}   Streak: ${streak}   Best: ${best}   (R: restart)`;
+  }
+  function click(i){
+    if(over) return;
+    if(i===targetIdx){
+      bump(i,true); streak++; score+=PTS + Math.max(0,streak-1)*STREAK_BONUS; best=Math.max(best,score); timeLeft=Math.min(roundTime,timeLeft+BONUS); newRound();
+    }else{ bump(targetIdx,false); streak=0; timeLeft-=PENALTY; }
+  }
+  function tick(){ if(over) return; timeLeft-=0.1; setBar(timeLeft/roundTime); if(timeLeft<=0){ timeLeft=0; over=true; final.textContent=`Score: ${score}   Best: ${best}`; overlay.classList.add("active"); clearInterval(timer); } }
+  function start(){ score=streak=0; over=false; overlay.classList.remove("active"); newRound(); clearInterval(timer); timer=setInterval(tick,100); }
+  $("#m6-restart").onclick=start; $("#m6-ov-restart").onclick=start; $("#m6-ov-menu").onclick=()=>{ overlay.classList.remove("active"); show("menu"); };
+  document.addEventListener("keydown",e=>{ if(!$("#view-mode6").classList.contains("active")) return; if(e.key==='r'||e.key==='R') start(); if(e.key==='Escape'){ overlay.classList.remove("active"); show("menu"); }});
+  return {start};
+})();
+
+/* ---------- Mode 7 (Odd One Out) ---------- */
+const Odd = (()=>{
+  const FAM = {
+    ka:[["か","ka"],["き","ki"],["く","ku"],["け","ke"],["こ","ko"]],
+    sa:[["さ","sa"],["し","shi"],["す","su"],["せ","se"],["そ","so"]],
+    ta:[["た","ta"],["ち","chi"],["つ","tsu"],["て","te"],["と","to"]],
+    na:[["な","na"],["に","ni"],["ぬ","nu"],["ね","ne"],["の","no"]],
+    ha:[["は","ha"],["ひ","hi"],["ふ","fu"],["へ","he"],["ほ","ho"]],
+    ma:[["ま","ma"],["み","mi"],["む","mu"],["め","me"],["も","mo"]],
+    ra:[["ら","ra"],["り","ri"],["る","ru"],["れ","re"],["ろ","ro"]],
+  };
+  const grid=$("#m7-grid"), q=$("#m7-q"), msg=$("#m7-msg");
+  let famKey=null, items=[];
+  function round(){
+    msg.textContent="";
+    famKey = Object.keys(FAM)[Math.floor(Math.random()*Object.keys(FAM).length)];
+    const fam = shuffle(FAM[famKey].slice()).slice(0,4);
+    const otherKey = shuffle(Object.keys(FAM).filter(k=>k!==famKey))[0];
+    const intr = shuffle(FAM[otherKey].slice())[0];
+    items = shuffle([...fam.map(x=>[x[0],false]), [intr[0],true]]);
+    q.textContent = `Which kana does NOT belong to the ${famKey}-line?`;
+    grid.innerHTML=""; for(const [k,odd] of items){ const b=document.createElement("button"); b.className="tile"; b.innerHTML=`<div class="kana">${k}</div>`; b.onclick=()=>{ if(odd){ round(); } else { msg.textContent="Try again — that one belongs to the row."; setTimeout(()=>msg.textContent="",900); } }; grid.appendChild(b); }
+  }
+  $("#m7-next").onclick=round;
+  function start(){ round(); }
+  return {start};
+})();
+
+/* ---------- Utilities ---------- */
+function pickWeighted(n, weights){
+  const total = weights.reduce((s,v)=>s+v,0);
+  let r = Math.random()*total, s=0;
+  for(let i=0;i<n;i++){ s+=weights[i]; if(r<=s) return i; }
+  return n-1;
+}
 </script>
 </body>
 </html>
